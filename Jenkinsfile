@@ -3,9 +3,10 @@ pipeline {
     // Build image
     stages {
         stage('Build') {
-            agent docker{
+            agent {
+                docker{
                     image 'node:16.13.1-alpine' 
-                } 
+                } }
         
             steps {
                 checkout scm
@@ -22,7 +23,9 @@ pipeline {
       }
 // deploy IMAGE TO K8S 
         stage('Deploy') {
-             agent kubernetes{
+             agent {
+                kubernetes{
+              }
           }
             steps {
                 checkout scm
