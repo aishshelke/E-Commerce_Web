@@ -1,26 +1,28 @@
 pipeline {
     agent none
+    // Build image
     stages {
         stage('Build') {
-            agent {
-                docker{
+            agent docker{
                     image 'node:16.13.1-alpine' 
                 } 
-            }
+        
             steps {
                 checkout scm
                 sh (' docker build -t $DEPLOYMENTNAME . ')
                 
             }
         }
+        // push image to ecr
         stage('Ecr') {
     	agent any
       steps {
         sh 'docker push $REPOSITORY_URI:$IMAGE_TAG'
       }
       }
+// deploy IMAGE TO K8S 
         stage('Deploy') {
-            kubernetes{
+             agent kubernetes{
           }
             steps {
                 checkout scm
@@ -31,6 +33,7 @@ pipeline {
                  
             }
         }
+        // CREATE ROUTE 53 
         stage('route53') {
             agent any
             steps {
@@ -40,6 +43,8 @@ pipeline {
                 '''   
             }
         }
+
+        // test the 
         stage('Test on Linux') {
             agent { 
                 label 'linux'
@@ -57,5 +62,10 @@ pipeline {
                 bat 'make check' 
             }
         }
+
+
+        // destroy the deployement
+
+
     }
 }
