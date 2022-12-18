@@ -10,7 +10,7 @@ pipeline {
         
             steps {
                 checkout scm
-                sh (' docker build -t $DEPLOYMENTNAME . ')
+                sh (' docker build -t $REPOSITORY_NAME_$BITBUCKET_SOURCE_BRANCH . ')
                 
             }
         }
@@ -18,7 +18,7 @@ pipeline {
         stage('Ecr') {
     	agent any
       steps {
-        sh 'docker push $REPOSITORY_URI:$IMAGE_TAG'
+        sh 'docker push $REPOSITORY_NAME:latest'
       }
       }
 // deploy IMAGE TO K8S 
@@ -27,7 +27,7 @@ pipeline {
             steps {
                 checkout scm
                 sh '''
-                kubectl create ns $reponame_$branchname
+                kubectl create ns $REPOSITORY_NAME_$BITBUCKET_SOURCE_BRANCH
                 kubectl apply -f k8s/.
                 '''
                  
