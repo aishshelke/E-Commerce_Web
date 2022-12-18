@@ -23,10 +23,7 @@ pipeline {
       }
 // deploy IMAGE TO K8S 
         stage('Deploy') {
-             agent {
-                kubernetes{
-              }
-          }
+             agent any
             steps {
                 checkout scm
                 sh '''
