@@ -10,21 +10,27 @@ pipeline {
         
             steps {
                 checkout scm
-                sh (' docker build -t $REPOSITORY_NAME_$BITBUCKET_SOURCE_BRANCH . ')
+                sh (''' 
+                aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/f3e8a4f2
+                docker build -t $REPOSITORY_NAME_$BITBUCKET_SOURCE_BRANCH . 
+                docker tag angularapp:latest public.ecr.aws/f3e8a4f2/angularapp:latest
+                docker push public.ecr.aws/f3e8a4f2/angularapp:latest
+                ''')
                 
             }
         }
         // push image to ecr
-        stage('Ecr') {
-    	agent any
-      steps {
-          sh      ''' docker.withRegistry('', 'ecr:us-east-2:aws-credentials') {
-                    docker push("${env.BUILD_NUMBER}")
-                  '''
+    //     stage('Ecr') {
+    // 	agent any
+    //   steps {
+    //       sh      '''
+    //                 docker.withRegistry('', 'ecr:us-east-2:aws-credentials') {
+    //                 docker push("${env.BUILD_NUMBER}")
+    //               '''
                     
-        // sh 'docker push $REPOSITORY_NAME:latest'
-      }
-      }
+    //     // sh 'docker push $REPOSITORY_NAME:latest'
+    //   }
+    //   }
 // deploy IMAGE TO K8S 
         stage('Deploy') {
              agent any
