@@ -18,7 +18,11 @@ pipeline {
         stage('Ecr') {
     	agent any
       steps {
-        sh 'docker push $REPOSITORY_NAME:latest'
+          sh      ''' docker.withRegistry('', 'ecr:us-east-2:aws-credentials') {
+                    docker push("${env.BUILD_NUMBER}")
+                  '''
+                    
+        // sh 'docker push $REPOSITORY_NAME:latest'
       }
       }
 // deploy IMAGE TO K8S 
